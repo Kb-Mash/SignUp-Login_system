@@ -4,8 +4,8 @@ from app.models import User
 
 # home page
 @app.route('/')
-def home():
-    return render_template('home.html')
+def index():
+    return render_template('index.html')
 
 # user sign up page
 @app.route('/signup', methods=['GET', 'POST'])
@@ -16,7 +16,7 @@ def signup():
         confirm_password = request.form['confirm_password']
 
         if password == confirm_password:
-            hashed_password = bcrypt.generate_hash(password).decode('utf-8')
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             user = User(username=username, password=hashed_password)
             db.session.add(user)
             db.session.commit()
@@ -30,13 +30,13 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = reuest.form['username']
+        username = request.form['username']
         password = request.form['password']
 
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.check_password_hash(user.password, password):
             session['user_id'] = user.id
-            return redirect(url_for('home'))
+            return redirect(url_for('index'))
         else:
             # TO-DO: message
             return redirect(url_for('login'))
